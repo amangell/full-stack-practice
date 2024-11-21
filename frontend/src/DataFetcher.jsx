@@ -1,98 +1,107 @@
-// src/DataFetcher.js
 import React, { useState, useEffect } from 'react';
+import './DataFetcher.css';
 
-const DataFetcher = () => {
-  const [data, setData] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
-
+export default function App() {
+  const [people, setPeople] = useState([]);
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
+  const [error, setError] = useState('');
 
-  // Fetch data from the Express API
+  // Backend URL (adjust if the server runs on a different port or URL)
+  const API_URL = 'http://localhost:3000/api/data';
+
+  // Fetch existing contacts from the database
   useEffect(() => {
-    fetch('http://localhost:3000/api/data') // Adjust the endpoint to your server's endpoint
-      .then((response) => response.json())
-      .then((data) => {
-        setData(data);
-        setLoading(false);
+    fetch(API_URL)
+      .then((response) => {
+        if (!response.ok) throw new Error('Failed to fetch contacts');
+        return response.json();
       })
-      .catch((error) => {
-        setError(error.message);
-        setLoading(false);
-      });
+      .then((data) => setPeople(data))
+      .catch((err) => setError(err.message));
   }, []);
 
-  const handleSubmit = (e) => {
+  // Handle form submission
+  const handleSubmit = async (e) => {
     e.preventDefault();
-
     const newPerson = { name, email };
 
-    // Send POST request to the server to add new person
-    fetch('http://localhost:3000/api/data', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify(newPerson),
-    })
-      .then((response) => response.json())
-      .then((newPersonData) => {
-        // After successfully adding the person, update the data state
-        setData([...data, newPersonData]);
-        // Clear the form fields
-        setName('');
-        setEmail('');
-      })
-      .catch((error) => {
-        setError('Error adding person to the database');
+    try {
+      const response = await fetch(API_URL, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(newPerson),
       });
+
+      if (!response.ok) {
+        throw new Error('Failed to add contact');
+      }
+
+      const addedPerson = await response.json();
+
+      // Dynamically update the contact list with the new person
+      setPeople([...people, addedPerson]);
+      setName('');
+      setEmail('');
+      setError('');
+    } catch (err) {
+      setError(err.message);
+    }
   };
 
-  if (loading) return <div>Loading...</div>;
-  if (error) return <div>Error: {error}</div>;
-
   return (
-    <div>
-      <h1>People List</h1>
-      <ul>
-        {data.map((person) => (
-          <li key={person.id}>
-            <p>ID: {person.id}</p>
-            <p>Name: {person.name}</p>
-            <p>Email: {person.email}</p>
-          </li>
-        ))}
-      </ul>
+    <div className="container">
+      <div className="header">
+        <h1>Contact List</h1>
+        <p>Manage and view your contacts easily.</p>
+      </div>
 
-      <h2>Add a New Person</h2>
-      <form onSubmit={handleSubmit}>
-        <div>
-          <label htmlFor="name">Name: </label>
-          <input
-            type="text"
-            id="name"
-            value={name}
-            onChange={(e) => setName(e.target.value)}
-            required
-          />
-        </div>
-        <div>
-          <label htmlFor="email">Email: </label>
-          <input
-            type="email"
-            id="email"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            required
-          />
-        </div>
-        <button type="submit">Add Person</button>
-      </form>
+      {/* Display Error Message */}
+      {error && <div className="error-message">{error}</div>}
+
+      {/* List of Contacts */}
+      <div className="list">
+        {people.length > 0 ? (
+          people.map((person) => (
+            <div key={person.id} className="list-item">
+              <span className="name">{person.name}</span>
+              <span className="email">{person.email}</span>
+            </div>
+          ))
+        ) : (
+          <p>No contacts available. Add one below!</p>
+        )}
+      </div>
+
+      {/* Add Contact Form */}
+      <div className="form-container">
+        <h2>Add a Contact</h2>
+        <form onSubmit={handleSubmit}>
+          <div className="form-group">
+            <label htmlFor="name">Name</label>
+            <input
+              type="text"
+              id="name"
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+              required
+            />
+          </div>
+          <div className="form-group">
+            <label htmlFor="email">Email</label>
+            <input
+              type="email"
+              id="email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              required
+            />
+          </div>
+          <button type="submit">Add Contact</button>
+        </form>
+      </div>
     </div>
   );
-};
-
-export default DataFetcher;
-
-
+}

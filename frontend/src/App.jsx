@@ -1,6 +1,5 @@
 // src/App.js
 import React from 'react';
-import './App.css';
 import DataFetcher from './DataFetcher';
 
 function App() {

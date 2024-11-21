@@ -12,7 +12,7 @@ app.use(express.json());  // Middleware to parse incoming JSON data
 // Example API route to get data from the database
 app.get('/api/data', async (req, res) => {
   try {
-    const data = await knex('contacts').select('*'); // Fetch data from 'contacts' table
+    const data = await knex('contacts'); // Fetch data from 'contacts' table
     res.json(data); // Send the data to the frontend
   } catch (error) {
     res.status(500).json({ message: 'Error fetching data from database', error });
