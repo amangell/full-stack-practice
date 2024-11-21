@@ -1,11 +1,13 @@
-// knexfile.js (or in your knex setup)
+require('dotenv').config()
+const connectionString = process.env.DB_CONNECTION_STRING;
+/**
+ * @type { Object.<string, import("knex").Knex.Config> }
+ */
 module.exports = {
-  client: 'pg', // Ensure you're using the 'pg' client for PostgreSQL
-  connection: {
-    host: 'localhost', // your PostgreSQL host
-    user: 'postgres', // your PostgreSQL username
-    password: 'docker', // your PostgreSQL password
-    database: 'test' // your PostgreSQL database name
-  }
-};
+
+  development: {
+    client: 'pg',
+    connection: connectionString
+  },
+}
 
