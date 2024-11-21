@@ -1,16 +1,28 @@
-// src/App.js
 import React from 'react';
-import DataFetcher from './DataFetcher';
+import { BrowserRouter as Router, Routes, Route, Link } from 'react-router-dom';
+import AddContact from './AddContact';
+import ManageContacts from './ManageContacts';
+import './App.css';
 
-function App() {
+export default function App() {
   return (
-    <div className="App">
-      <h1>My Full Stack App</h1>
-      <DataFetcher />
-    </div>
+    <Router>
+      <div className="app">
+        <header className="navbar">
+          <h1>Elite Contact Manager</h1>
+          <nav>
+            <Link to="/">Add Contact</Link>
+            <Link to="/manage">Manage Contacts</Link>
+          </nav>
+        </header>
+        <Routes>
+          <Route path="/" element={<AddContact />} />
+          <Route path="/manage" element={<ManageContacts />} />
+        </Routes>
+      </div>
+    </Router>
   );
 }
 
-export default App;
 
 

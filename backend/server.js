@@ -34,6 +34,36 @@ app.post('/api/data', async (req, res) => {
   }
 });
 
+// DELETE route to delete a contact by ID
+app.delete('/api/data/:id', async (req, res) => {
+  const { id } = req.params;
+
+  try {
+    await knex('contacts').where({ id }).del();
+    res.status(200).json({ message: 'Contact deleted successfully' });
+  } catch (error) {
+    res.status(500).json({ message: 'Error deleting contact', error });
+  }
+});
+
+// PUT route to update a contact by ID
+app.put('/api/data/:id', async (req, res) => {
+  const { id } = req.params;
+  const { name, email } = req.body;
+
+  try {
+    const updatedPerson = await knex('contacts')
+      .where({ id })
+      .update({ name, email })
+      .returning(['id', 'name', 'email']);
+
+    res.status(200).json(updatedPerson[0]);
+  } catch (error) {
+    res.status(500).json({ message: 'Error updating contact', error });
+  }
+});
+
+
 app.listen(port, () => {
   console.log(`Server is running on http://localhost:${port}`);
 });
